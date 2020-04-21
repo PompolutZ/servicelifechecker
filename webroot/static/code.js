@@ -1,11 +1,13 @@
 const listContainer = document.querySelector('#service-list');
 let servicesRequest = new Request('/service');
 fetch(servicesRequest)
-.then(function(response) { return response.json(); })
+.then(function(response) {
+    console.log(response)
+    return response.json(); })
 .then(function(serviceList) {
   serviceList.forEach(service => {
     var li = document.createElement("li");
-    li.appendChild(document.createTextNode(service.name + ': ' + service.status));
+    li.appendChild(document.createTextNode(service.url + ': ' + service.status));
     listContainer.appendChild(li);
   });
 });
