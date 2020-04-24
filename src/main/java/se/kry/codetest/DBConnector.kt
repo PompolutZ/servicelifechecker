@@ -11,12 +11,14 @@ import io.vertx.ext.sql.SQLClient
 
 const val SERVICE_POLLER_DATABASE_ADDRESS = "service.poller.database"
 
-private const val SQL_CREATE_SERVICES_TABLE = "CREATE TABLE IF NOT EXISTS services (url VARCHAR(128) NOT NULL, name VARCHAR(128), status INTEGER, added VARCHAR(128))"
-private const val SQL_FETCH_ALL_SERVICES = "SELECT * FROM services"
-private const val SQL_INSERT_SERVICE = "INSERT INTO services (url, name, status, added) VALUES(?, ?, ?, ?)"
+private const val SQL_CREATE_SERVICES_TABLE = "CREATE TABLE IF NOT EXISTS services (url VARCHAR(128) NOT NULL, name VARCHAR(128), status INTEGER, added VARCHAR(128));"
+private const val SQL_FETCH_ALL_SERVICES = "SELECT * FROM services;"
+private const val SQL_INSERT_SERVICE = "INSERT INTO services (url, name, status, added) VALUES(?, ?, ?, ?);"
+private const val SQL_UPDATE_SERVICE = "UPDATE services SET name = ?, status = ? WHERE url = ?;"
 
 const val ACTION_GET_ALL_SERVICES = "GET_ALL_SERVICES"
 const val ACTION_ADD_NEW_SERVICE = "ADD_NEW_SERVICE"
+const val ACTION_UPDATE_SERVICE = "UPDATE_SERVICE"
 
 class DBConnector : AbstractVerticle() {
     private val DB_PATH = "poller.db"
@@ -64,6 +66,20 @@ class DBConnector : AbstractVerticle() {
                                 .add(message.body().getValue("name", ""))
                                 .add(message.body().getValue("status"))
                                 .add(message.body().getValue("added"))) { done ->
+                    if(done.succeeded()) {
+                        message.reply("OK")
+                    } else {
+                        message.fail(EventBusErrorCodes.AsyncResultFailed.ordinal, done.cause().message)
+                    }
+                }
+            }
+
+            ACTION_UPDATE_SERVICE -> {
+                client.updateWithParams(
+                        SQL_UPDATE_SERVICE,
+                        JsonArray().add(message.body().getValue("name"))
+                                .add(message.body().getValue("status"))
+                                .add(message.body().getValue("url"))) { done ->
                     if(done.succeeded()) {
                         message.reply("OK")
                     } else {

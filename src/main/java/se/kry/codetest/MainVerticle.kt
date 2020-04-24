@@ -1,15 +1,6 @@
 package se.kry.codetest
 
 import io.vertx.core.*
-import io.vertx.core.http.HttpServer
-import io.vertx.core.json.JsonArray
-import io.vertx.core.json.JsonObject
-import io.vertx.ext.web.Router
-import io.vertx.ext.web.RoutingContext
-import io.vertx.ext.web.handler.BodyHandler
-import io.vertx.ext.web.handler.StaticHandler
-import java.util.*
-import java.util.stream.Collectors
 
 enum class EventBusErrorCodes {
     AsyncResultFailed,
@@ -18,11 +9,11 @@ enum class EventBusErrorCodes {
 
 class MainVerticle : AbstractVerticle() {
     //TODO use this
-    private val poller = BackgroundPoller()
+    private val poller = BackgroundPollerVerticle()
 
     override fun start(startPromise: Promise<Void>?) {
         CompositeFuture.all(deployDatabaseVerticle(), deployServiceStatusCheckerVerticle())
-                .compose { deployHttpServerVerticle() }
+                .compose { CompositeFuture.all(deployHttpServerVerticle(), deployBackgroundPoller()) }
                 .onSuccess {
                     startPromise?.complete()
                 }.onFailure {
@@ -40,6 +31,13 @@ class MainVerticle : AbstractVerticle() {
     private fun deployServiceStatusCheckerVerticle(): Future<String> {
         val promise = Promise.promise<String>()
         vertx.deployVerticle(ServiceStatusCheckerVerticle(), promise)
+
+        return promise.future()
+    }
+
+    private fun deployBackgroundPoller(): Future<String> {
+        val promise = Promise.promise<String>()
+        vertx.deployVerticle(BackgroundPollerVerticle(), promise)
 
         return promise.future()
     }
