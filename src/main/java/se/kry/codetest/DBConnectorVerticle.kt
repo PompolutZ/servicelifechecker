@@ -8,6 +8,7 @@ import io.vertx.core.json.JsonObject
 import io.vertx.ext.jdbc.JDBCClient
 import io.vertx.ext.sql.ResultSet
 import io.vertx.ext.sql.SQLClient
+import org.slf4j.LoggerFactory
 
 const val SERVICE_POLLER_DATABASE_ADDRESS = "service.poller.database"
 
@@ -21,6 +22,7 @@ const val ACTION_ADD_NEW_SERVICE = "ADD_NEW_SERVICE"
 const val ACTION_UPDATE_SERVICE = "UPDATE_SERVICE"
 
 class DBConnector : AbstractVerticle() {
+    private val logger = LoggerFactory.getLogger(DBConnector::class.java)
     private val DB_PATH = "poller.db"
     private lateinit var client: SQLClient
 
@@ -34,7 +36,7 @@ class DBConnector : AbstractVerticle() {
 
          client.query(SQL_CREATE_SERVICES_TABLE) { done ->
             if(done.succeeded()) {
-                println("KRY - DBConnectorVerticle started")
+                logger.info("DBConnectorVerticle started")
                 vertx.eventBus().consumer<JsonObject>(SERVICE_POLLER_DATABASE_ADDRESS) { msg -> processMessage(msg) }
 
                 startPromise?.complete()
@@ -46,6 +48,7 @@ class DBConnector : AbstractVerticle() {
 
     private fun processMessage(message: Message<JsonObject>) {
         if(!message.headers().contains("action")) {
+            logger.error("Received a message without action header")
             message.fail(404, "No action header in the message")
             return
         }

@@ -1,0 +1,66 @@
+.root {
+    display: flex;
+}
+
+.container {
+    margin: auto;
+    max-width: 80%;
+}
+
+.add-service-form {
+    display: flex;
+}
+
+.services-list li {
+    transition: all 0.4s ease-out;
+    opacity: 0;
+}
+
+.services-list li.show {
+    opacity: 1;
+  }
+
+li {
+    list-style: none;
+    height: 0;
+    line-height: 2em;
+    margin: 0;
+    padding: .5em 0 2.5em .5em;
+    overflow: hidden;
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #39cfba;
+    border-radius: 6px;
+    display: flex;
+}
+
+li.show {
+    height: 2em;
+    margin: 2px 0;
+}
+
+.item-service-name {
+    font-weight: 700;
+}
+
+.item-service-url {
+    color: lightslategray;
+}
+
+.service-info {
+    flex: 1;
+}
+
+.status-icon {
+    font-size: 2rem;
+    margin-right: .5rem;
+}
+
+.status-ok {
+    color: #39cfba;
+}
+
+.status-fail {
+    color: crimson;
+}
+

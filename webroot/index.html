@@ -1,17 +1,48 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Welcome to KRY</title>
-</head>
-<body>
-KRY status poller
-<ul id="service-list">
-</ul>
-<input type="text" id="url-name">
-<button id="post-service">Save</button>
+    <link rel="stylesheet" href="static/main.css" />
+    <script src="https://kit.fontawesome.com/f161a6897b.js" crossorigin="anonymous"></script>
+  </head>
+  <body>
+    <div class="root">  
+        <div class="container">
+            KRY status poller
 
-</body>
-<script src="static/code.js">
-</script>
+            <div class="add-service-form">
+                <div class="text-field">
+                    <label>Url:</label>
+                    <input type="text" id="service-url" />
+                </div>
+    
+                <div class="text-field">
+                    <label>Name:</label>
+                    <input type="text" id="service-name" />
+                </div>
+            </div>
+
+            <button id="post-service">Save</button>    
+
+            <ul class="services-list" id="service-list">
+                <li class="show">
+                    <div class="service-info">
+                        <span class="item-service-name">KRY:</span>
+                        <span class="item-service-url">https://www.kry.com</span>
+                    </div>
+                    <i class="far fa-grin-beam status-icon status-ok"></i>
+                </li>
+                <li class="show">
+                    <div class="service-info">
+                        <span class="item-service-name">KRY:</span>
+                        <span class="item-service-url">https://www.kry.com</span>
+                    </div>
+                    <i class="far fa-dizzy status-icon status-fail"></i>
+                </li>                
+            </ul>
+        </div>            
+    </div>
+  </body>
+  <script src="static/code.js"></script>
 </html>

@@ -7,17 +7,18 @@ import io.vertx.core.eventbus.DeliveryOptions
 import io.vertx.core.json.Json
 import io.vertx.core.json.JsonObject
 import io.vertx.ext.web.client.WebClient
+import org.slf4j.LoggerFactory
 import java.lang.Exception
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 import java.util.HashMap
 
 class BackgroundPollerVerticle : AbstractVerticle() {
+    private val logger = LoggerFactory.getLogger(BackgroundPollerVerticle::class.java)
+
     override fun start(startPromise: Promise<Void>?) {
-        println("Starting BackgroundPoller")
-        vertx.setPeriodic(1000 * 10L) {
-            id -> pollServices()
-        }
+        logger.info("Starting BackgroundPoller")
+        vertx.setPeriodic(1000 * 10L) { pollServices() }
         startPromise?.complete()
     }
 
@@ -35,7 +36,6 @@ class BackgroundPollerVerticle : AbstractVerticle() {
 
                     vertx.eventBus().request<String>(SERVICE_STATUS_CHECKER_ADDRESS, urlToCheck) { reply ->
                     if(reply.succeeded()) {
-                        println("$urlToCheck : ${reply.result().body().toInt()}")
                         vertx.eventBus().send(
                                 SERVICE_POLLER_DATABASE_ADDRESS,
                                 JsonObject()
@@ -44,7 +44,7 @@ class BackgroundPollerVerticle : AbstractVerticle() {
                                         .put("name", json?.getValue("name")),
                                 options)
                     } else {
-                        println("$urlToCheck : ${reply.cause()}")
+                        logger.error("Failed to check url $urlToCheck : ${reply.cause()}")
                         vertx.eventBus().send(
                                 SERVICE_POLLER_DATABASE_ADDRESS,
                                 JsonObject()
@@ -55,6 +55,8 @@ class BackgroundPollerVerticle : AbstractVerticle() {
                     }
                 }
                 }
+            } else {
+                logger.error("Failed to read from database: ${ar.cause()}")
             }
         }
     }
