@@ -79,5 +79,19 @@ class HttpServerVerticle : AbstractVerticle() {
                 }
             }
         }
+
+        router.delete("/service").handler { req ->
+            val jsonBody = req.bodyAsJson
+            vertx.eventBus().request<JsonObject>(
+                    SERVICE_POLLER_DATABASE_ADDRESS,
+                    JsonObject().put("url", jsonBody.getString("url")),
+                    DeliveryOptions().addHeader("action", ACTION_DELETE_SERVICE)) { dbReply ->
+                if(dbReply.failed()) {
+                    req.response().setStatusCode(500).end(dbReply.cause().message)
+                } else {
+                    req.response().end("OK")
+                }
+            }
+        }
     }
 }

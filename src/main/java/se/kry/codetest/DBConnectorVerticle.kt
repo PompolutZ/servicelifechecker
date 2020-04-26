@@ -16,10 +16,12 @@ private const val SQL_CREATE_SERVICES_TABLE = "CREATE TABLE IF NOT EXISTS servic
 private const val SQL_FETCH_ALL_SERVICES = "SELECT * FROM services;"
 private const val SQL_INSERT_SERVICE = "INSERT INTO services (url, name, status, added) VALUES(?, ?, ?, ?);"
 private const val SQL_UPDATE_SERVICE = "UPDATE services SET name = ?, status = ? WHERE url = ?;"
+private const val SQL_DELETE_SERVICE = "DELETE FROM services WHERE url = ?;"
 
 const val ACTION_GET_ALL_SERVICES = "GET_ALL_SERVICES"
 const val ACTION_ADD_NEW_SERVICE = "ADD_NEW_SERVICE"
 const val ACTION_UPDATE_SERVICE = "UPDATE_SERVICE"
+const val ACTION_DELETE_SERVICE = "DELETE_SERVICE"
 
 class DBConnector : AbstractVerticle() {
     private val logger = LoggerFactory.getLogger(DBConnector::class.java)
@@ -83,6 +85,18 @@ class DBConnector : AbstractVerticle() {
                         JsonArray().add(message.body().getValue("name"))
                                 .add(message.body().getValue("status"))
                                 .add(message.body().getValue("url"))) { done ->
+                    if(done.succeeded()) {
+                        message.reply("OK")
+                    } else {
+                        message.fail(EventBusErrorCodes.AsyncResultFailed.ordinal, done.cause().message)
+                    }
+                }
+            }
+
+            ACTION_DELETE_SERVICE -> {
+                client.queryWithParams(
+                        SQL_DELETE_SERVICE,
+                        JsonArray().add(message.body().getValue("url"))) { done ->
                     if(done.succeeded()) {
                         message.reply("OK")
                     } else {

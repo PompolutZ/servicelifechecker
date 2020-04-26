@@ -49,7 +49,7 @@ class BackgroundPollerVerticle : AbstractVerticle() {
                                 SERVICE_POLLER_DATABASE_ADDRESS,
                                 JsonObject()
                                         .put("url", urlToCheck)
-                                        .put("status", -1)
+                                        .put("status", 404)
                                         .put("name", json?.getValue("name")),
                                 options)
                     }

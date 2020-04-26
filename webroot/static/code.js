@@ -79,8 +79,13 @@ function createServiceItem({ url, name, status }) {
   newServiceInfo.appendChild(serviceName);
   newServiceInfo.appendChild(serviceUrl);
 
+  const deleteIcon = document.createElement("i");
+  deleteIcon.className = "far fa-trash-alt delete-icon"
+  deleteIcon.onclick = event => deleteItem(url)(event);
+
   newService.appendChild(newServiceInfo);
   newService.appendChild(getStatusIcon(status));
+  newService.appendChild(deleteIcon);
 
   return newService;
 }
@@ -98,4 +103,15 @@ function validURL(str) {
 
   console.log("Validate", !!pattern.test(str));
   return !!pattern.test(str);
+}
+
+const deleteItem = url => e => {
+  fetch("/service", {
+    method: "delete",
+    headers: {
+      Accept: "application/json, text/plain, */*",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ url: url }),
+  }).then((res) => location.reload());
 }

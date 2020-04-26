@@ -101,3 +101,9 @@ li.show {
     color: crimson;
 }
 
+.delete-icon {
+    color: darkred;
+    font-size: 2rem;
+    margin-right: .5rem;
+}
+
