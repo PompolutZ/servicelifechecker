@@ -57,7 +57,6 @@ class HttpServerVerticle : AbstractVerticle() {
         }
         router.post("/service").handler { req: RoutingContext ->
             val jsonBody = req.bodyAsJson
-            // VALIDATE URL ON client side
             vertx.eventBus().request<String>(SERVICE_STATUS_CHECKER_ADDRESS, jsonBody.getString("url")) { reply ->
                 if(reply.failed()) {
                     req.response().setStatusCode(400).end(reply.cause().message)
@@ -67,6 +66,7 @@ class HttpServerVerticle : AbstractVerticle() {
                             SERVICE_POLLER_DATABASE_ADDRESS,
                             JsonObject()
                                     .put("url", jsonBody.getString("url"))
+                                    .put("name", jsonBody.getString("name"))
                                     .put("status", reply.result().body().toInt())
                                     .put("added", DateTimeFormatter.ISO_INSTANT.format(Instant.now()).toString()),
                             options) { dbReply ->

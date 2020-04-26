@@ -3,57 +3,87 @@ const serviceUrlInput = document.querySelector("#service-url");
 const serviceNameInput = document.querySelector("#service-name");
 const saveButton = document.querySelector("#post-service");
 
-let servicesRequest = new Request('/service');
+let servicesRequest = new Request("/service");
 fetch(servicesRequest)
-.then(function(response) {
-    console.log(response)
-    return response.json(); })
-.then(function(serviceList) {
-    console.log(serviceList)
-  // serviceList.forEach(service => {
-  //   var li = document.createElement("li");
-  //   li.appendChild(document.createTextNode(service.url + ': ' + service.status));
-  //   listContainer.appendChild(li);
-  // });
-});
+  .then(function (response) {
+    console.log(response);
+    return response.json();
+  })
+  .then(function (serviceList) {
+    console.log(serviceList);
+    serviceList.forEach((service) => {
+      console.log(service)
+      const li = createServiceItem(service);
+      li.className = "show";
+      console.log(li);
+      listContainer.appendChild(li);
+    });
+  });
 
 saveButton.onclick = (evt) => {
-  if(!validURL(serviceUrlInput.value)) {
+  if (!validURL(serviceUrlInput.value)) {
     serviceUrlInput.value = "";
     return;
+  }
+
+  const params = {
+    url: serviceUrlInput.value,
+    name: serviceNameInput.value,
+    status: -1,
   };
+
+  const newService = createServiceItem(params);
+  listContainer.appendChild(newService);
+
+  setTimeout(function () {
+    newService.className = newService.className + " show";
+
+    fetch("/service", {
+      method: "post",
+      headers: {
+        Accept: "application/json, text/plain, */*",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ url: serviceUrlInput.value, name: serviceNameInput.value }),
+    }).then((res) => location.reload());
+  }, 10);
+};
+
+function getStatusIcon(statusCode) {
+  const icon = document.createElement("i");
+  if (statusCode < 0) {
+    icon.className = "far fa-question-circle status-icon";
+  } else if (statusCode === 200) {
+    icon.className = "far fa-grin-beam status-icon status-ok";
+  } else {
+    icon.className = "far fa-dizzy status-icon status-fail";
+  }
+
+  return icon;
+}
+
+function createServiceItem({ url, name, status }) {
   const newService = document.createElement("li");
-  
+
   const newServiceInfo = document.createElement("div");
   newServiceInfo.className = "service-info";
-  
+
   const serviceUrl = document.createElement("span");
-  serviceUrl.innerHTML = serviceUrlInput.value;
+  serviceUrl.innerHTML = url;
   serviceUrl.className = "item-service-url";
 
   const serviceName = document.createElement("span");
-  serviceName.innerHTML = `${serviceNameInput.value}: `;
+  serviceName.innerHTML = `${name ? name : "Service"}: `;
   serviceName.className = "item-service-name";
 
   newServiceInfo.appendChild(serviceName);
   newServiceInfo.appendChild(serviceUrl);
 
   newService.appendChild(newServiceInfo);
-  listContainer.appendChild(newService);
+  newService.appendChild(getStatusIcon(status));
 
-
-  setTimeout(function () {
-    newService.className = newService.className + " show";
-  }, 10);
-  //     fetch('/service', {
-  //     method: 'post',
-  //     headers: {
-  //     'Accept': 'application/json, text/plain, */*',
-  //     'Content-Type': 'application/json'
-  //     },
-  //   body: JSON.stringify({url:urlName})
-  // }).then(res=> location.reload());
-};
+  return newService;
+}
 
 function validURL(str) {
   var pattern = new RegExp(
